@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#14161c">
+<title>主页</title>
+<style>
+:root{
+  /* ⇩ 换壁纸：把 none 换成 url("图片地址")，例如 url("https://xxx.com/1.jpg") */
+  --bg: none;
+  --glass: rgba(255,255,255,.10);
+  --blur: 25px;
+  --radius: 15px;
+  --txt: #fff;
+}
+*{ -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+html,body{ margin:0; padding:0; height:100%; }
+body{
+  font-family:-apple-system,"PingFang SC","Noto Sans SC",system-ui,sans-serif;
+  color:var(--txt); background:#14161c; overflow:hidden;
+}
+body::before{
+  content:''; position:fixed; inset:0; z-index:-1;
+  background-image: var(--bg), linear-gradient(160deg,#1b2a4a,#3a2a3f 45%,#12202f);
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+}
+#content{
+  position:fixed; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding: calc(env(safe-area-inset-top) + 14vh) 0 40px;
+}
+
+/* ---------- Logo ---------- */
+.logo{
+  text-align:center; font-size:40px; font-weight:700; letter-spacing:1px;
+  text-shadow:0 2px 14px rgba(0,0,0,.45);
+  transition: opacity .4s ease-out, transform .4s ease-out;
+}
+.logo span{ color:rgba(180,235,215,.88); }
+
+/* ---------- 搜索框 ---------- */
+.search_bar{
+  position:relative; display:flex; align-items:center;
+  width:85%; max-width:400px; height:46px;
+  margin:20px auto; padding:0 6px;
+  border-radius:var(--radius);
+  background:var(--glass);
+  backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur));
+  box-shadow:0 0 5px rgba(70,70,40,.255);
+  transition: width .4s ease-out;
+}
+.search_bar:focus-within{ width:90%; }
+
+.engine{
+  flex:0 0 auto; display:flex; align-items:center; gap:4px;
+  padding:0 8px 0 12px; font-size:15px; white-space:nowrap;
+  color:rgba(255,255,255,.82);
+}
+.engine i{ font-style:normal; font-size:11px; opacity:.7; }
+
+#q{
+  flex:1 1 auto; min-width:0; height:100%;
+  border:0; outline:none; background:transparent;
+  color:#fff; font-size:16px; text-align:center; font-family:inherit;
+  -webkit-appearance:none;
+}
+#q::placeholder{ color:rgba(255,255,255,.5); }
+
+#submit{
+  flex:0 0 auto; width:34px; height:34px; padding:0;
+  border:0; border-radius:50%;
+  background:rgba(255,255,255,.18); color:#fff;
+  font-size:16px; line-height:34px; text-align:center;
+  opacity:0; transform:translateX(10px); pointer-events:none;
+  transition: all .35s ease-out;
+}
+.search_bar:focus-within #submit,
+.search_bar.has-text #submit{ opacity:1; transform:none; pointer-events:auto; }
+
+/* ---------- 联想词下拉 ---------- */
+#sug{
+  position:absolute; left:0; right:0; top:calc(100% + 8px);
+  max-height:46vh; overflow-y:auto;
+  border-radius:var(--radius);
+  background:rgba(202,203,204,.2);
+  backdrop-filter:blur(var(--blur)); -webkit-backdrop-filter:blur(var(--blur));
+  display:none; z-index:10;
+}
+#sug.show{ display:block; }
+#sug div{
+  padding:11px 16px; font-size:14.5px; color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+#sug div:last-child{ border-bottom:0; }
+#sug div:active{ background:rgba(255,255,255,.12); }
+
+/* ---------- 书签 ---------- */
+#bookmark_part{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:16px 10px;
+  width:88%; max-width:420px; margin:34px auto 0;
+  transition: opacity .4s ease-out, transform .4s ease-out;
+}
+#bookmark_part a{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  text-decoration:none; color:rgba(255,255,255,.9); font-size:12px;
+}
+#bookmark_part .ico{
+  width:48px; height:48px; border-radius:14px;
+  background:rgba(255,255,255,.14);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px; font-weight:600; overflow:hidden;
+}
+#bookmark_part .ico img{ width:100%; height:100%; object-fit:cover; }
+
+/* ---------- 聚焦时隐藏 Logo 和书签 ---------- */
+#content.focus .logo,
+#content.focus #bookmark_part{
+  opacity:0; transform:translateY(-10px); pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+<div id="content">
+  <div class="logo">Search <span>For</span></div>
+
+  <form id="search_form" autocomplete="off">
+    <div class="search_bar" id="bar">
+      <div class="engine" id="engine">谷歌 <i>▾</i></div>
+      <input id="q" type="text" enterkeyhint="search" autocomplete="off"
+             autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="">
+      <button id="submit" type="button" aria-label="搜索">➜</button>
+      <div id="sug"></div>
+    </div>
+  </form>
+
+  <div id="bookmark_part"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ================= 配置区 ================= */
+
+  // 搜索引擎：点搜索框左边的名字可循环切换
+  var ENGINES = [
+    { name:'谷歌', tag:'google', url:'https://www.google.com/search?q=' },
+    { name:'必应', tag:'bing',   url:'https://www.bing.com/search?q='  },
+    { name:'百度', tag:'baidu',  url:'https://www.baidu.com/s?wd='     },
+    { name:'搜狗', tag:'sogou',  url:'https://www.sogou.com/web?query='}
+  ];
+
+  // 书签：icon 留空就用名字首字代替
+  var BOOKMARKS = [
+    { name:'B站',    url:'https://m.bilibili.com', icon:'https://www.bilibili.com/favicon.ico' },
+    { name:'知乎',   url:'https://www.zhihu.com',  icon:'https://www.zhihu.com/favicon.ico'   },
+    { name:'微博',   url:'https://m.weibo.cn',     icon:'https://weibo.com/favicon.ico'       },
+    { name:'贴吧',   url:'https://tieba.baidu.com',icon:'https://tieba.baidu.com/favicon.ico' },
+    { name:'豆瓣',   url:'https://m.douban.com',   icon:'https://www.douban.com/favicon.ico'  },
+    { name:'GitHub', url:'https://github.com',     icon:'https://github.com/favicon.ico'      },
+    { name:'淘宝',   url:'https://m.taobao.com',   icon:'https://www.taobao.com/favicon.ico'  },
+    { name:'京东',   url:'https://m.jd.com',       icon:'https://www.jd.com/favicon.ico'      }
+  ];
+
+  /* ========================================== */
+
+  var $ = function(s){ return document.querySelector(s); };
+  var input = $('#q'), bar = $('#bar'), sugBox = $('#sug'),
+      engineEl = $('#engine'), contentEl = $('#content'), bmBox = $('#bookmark_part');
+
+  /* ---------- 搜索引擎切换 ---------- */
+  var idx = 0;
+  try { idx = parseInt(localStorage.getItem('hp_engine') || '0', 10) || 0; } catch(e){ idx = 0; }
+  if (idx < 0 || idx >= ENGINES.length) idx = 0;
+  function cur(){ return ENGINES[idx]; }
+  function renderEngine(){ engineEl.innerHTML = cur().name + ' <i>▾</i>'; }
+  renderEngine();
+
+  engineEl.addEventListener('click', function(){
+    idx = (idx + 1) % ENGINES.length;
+    try { localStorage.setItem('hp_engine', String(idx)); } catch(e){}
+    renderEngine();
+    hideSug();
+    input.focus();
+    var q = input.value.trim();
+    if (q) askSuggest(q);
+  });
+
+  /* ---------- 打开 ---------- */
+  function looksLikeUrl(s){
+    if (/\s/.test(s)) return false;
+    return /^(https?:\/\/|ftp:\/\/)/i.test(s) || /^[\w-]+(\.[\w-]+)+(\/|$|:\d+)/i.test(s);
+  }
+  function go(k){
+    var q = (k == null ? input.value : k);
+    q = String(q).replace(/^\s+|\s+$/g, '');
+    if (!q) { input.focus(); return; }
+    if (looksLikeUrl(q)) {
+      location.href = /^[a-z]+:\/\//i.test(q) ? q : 'https://' + q;
+    } else {
+      location.href = cur().url + encodeURIComponent(q);
+    }
+  }
+
+  $('#submit').addEventListener('click', function(){ go(); });
+  $('#search_form').addEventListener('submit', function(e){ e.preventDefault(); go(); });
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); go(); }
+  });
+
+  /* ---------- 联想词 ---------- */
+  var sugTimer = null, sugReq = 0;
+
+  function hideSug(){ sugBox.classList.remove('show'); sugBox.innerHTML = ''; }
+
+  function renderSug(list){
+    sugBox.innerHTML = '';
+    if (!list || !list.length) { hideSug(); return; }
+    list.slice(0, 10).forEach(function(t){
+      var row = document.createElement('div');
+      row.textContent = t;
+      var pick = function(e){
+        if (e && e.preventDefault) e.preventDefault();
+        input.value = t;
+        hideSug();
+        go(t);
+      };
+      row.addEventListener('touchstart', pick, { passive:false });
+      row.addEventListener('click', function(){ pick(); });
+      sugBox.appendChild(row);
+    });
+    sugBox.classList.add('show');
+  }
+
+  function askSuggest(key){
+    var tag = cur().tag;
+    if (tag !== 'baidu' && tag !== 'bing' && tag !== 'google') { hideSug(); return; }
+
+    var req = ++sugReq;
+    var cbName = '__hp_sug_' + req;
+    var script = document.createElement('script');
+    var done = false;
+
+    function finish(list){
+      if (done) return; done = true;
+      try { script.remove(); } catch(e){}
+      try { delete window[cbName]; } catch(e){ window[cbName] = undefined; }
+      if (req !== sugReq) return;
+      renderSug(list);
+    }
+
+    var url;
+    if (tag === 'baidu') {
+      window[cbName] = function(data){
+        var list = [];
+        try { list = (data && data.g) ? data.g.map(function(x){ return x.q; }) : []; } catch(e){}
+        finish(list);
+      };
+      url = 'https://www.baidu.com/sugrec?prod=pc&wd=' + encodeURIComponent(key) + '&cb=' + cbName;
+    } else if (tag === 'bing') {
+      window[cbName] = function(data){
+        var list = [];
+        try { list = (data && data[1]) ? data[1] : []; } catch(e){}
+        finish(list);
+      };
+      url = 'https://api.bing.com/osjson.aspx?JsonType=callback&JsonCallback=' + cbName +
+            '&query=' + encodeURIComponent(key);
+    } else {
+      window.google = window.google || {};
+      window.google.ac = window.google.ac || {};
+      window.google.ac.h = function(res){
+        var list = [];
+        try { list = (res && res[1]) ? res[1].map(function(x){ return x[0]; }) : []; } catch(e){}
+        finish(list);
+      };
+      url = 'https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&q=' +
+            encodeURIComponent(key);
+    }
+
+    script.src = url;
+    script.onerror = function(){ finish([]); };
+    document.body.appendChild(script);
+    setTimeout(function(){ finish([]); }, 3500);
+  }
+
+  input.addEventListener('input', function(){
+    var q = input.value.trim();
+    bar.classList.toggle('has-text', !!q);
+    clearTimeout(sugTimer);
+    if (!q) { hideSug(); return; }
+    sugTimer = setTimeout(function(){ askSuggest(q); }, 180);
+  });
+
+  input.addEventListener('focus', function(){
+    contentEl.classList.add('focus');
+    var q = input.value.trim();
+    if (q) askSuggest(q);
+  });
+
+  input.addEventListener('blur', function(){
+    contentEl.classList.remove('focus');
+    setTimeout(hideSug, 200);
+  });
+
+  document.addEventListener('click', function(e){
+    if (e.target !== input && !sugBox.contains(e.target) && !engineEl.contains(e.target)) hideSug();
+  });
+
+  /* ---------- 书签 ---------- */
+  BOOKMARKS.forEach(function(b){
+    var a = document.createElement('a');
+    a.href = b.url;
+    a.rel = 'noopener';
+    var ico = document.createElement('div');
+    ico.className = 'ico';
+    if (b.icon) {
+      var img = new Image();
+      img.src = b.icon;
+      img.alt = '';
+      img.onerror = function(){ try{ img.remove(); }catch(e){} ico.textContent = b.name.slice(0,1); };
+      ico.appendChild(img);
+    } else {
+      ico.textContent = b.name.slice(0,1);
+    }
+    var txt = document.createElement('span');
+    txt.textContent = b.name;
+    a.appendChild(ico);
+    a.appendChild(txt);
+    bmBox.appendChild(a);
+  });
+
+})();
+</script>
+</body>
+</html>
