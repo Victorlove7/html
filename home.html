@@ -32,19 +32,16 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-grad
 .date i{font-style:normal;font-size:10px;opacity:.5;transform:translateY(-1px)}
 .time{margin-top:10px;font-size:clamp(42px,14vw,60px);font-weight:900;line-height:1.05;color:var(--blue-soft);letter-spacing:3px;font-variant-numeric:tabular-nums}
 
-/* ---------- 搜索栏 ---------- */
-.search_bar{position:relative;display:flex;align-items:center;width:86%;max-width:420px;height:48px;margin:0 auto;padding:0 6px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 20px rgba(26,95,208,.08);transition:width .3s ease,box-shadow .3s ease,border-color .3s ease}
-.search_bar:focus-within{width:92%;border-color:rgba(26,115,232,.55);box-shadow:0 8px 26px rgba(26,115,232,.16)}
-.engine{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:0 8px 0 12px;font-size:15px;font-weight:700;white-space:nowrap;color:var(--blue);overflow:hidden;
-  transition:opacity .3s ease,width .35s ease,padding .35s ease,transform .35s ease}
+/* ---------- 搜索栏（聚焦时不再放大/变色，保持静止） ---------- */
+.search_bar{position:relative;display:flex;align-items:center;width:86%;max-width:420px;height:48px;margin:0 auto;padding:0 6px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 20px rgba(26,95,208,.08)}
+.engine{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:0 8px 0 12px;font-size:15px;font-weight:700;white-space:nowrap;color:var(--blue);overflow:hidden;transition:opacity .2s}
 .engine i{font-style:normal;font-size:11px;opacity:.65;transition:transform .2s}
 .engine.open i{transform:rotate(180deg)}
-/* 聚焦时渐隐收起引擎名，且延迟一点，切换引擎后能看清当前引擎 */
-.hide-eng .search_bar:focus-within:not(.keep-eng) .engine{width:0;padding:0;opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:.5s}
 #q{flex:1 1 auto;min-width:0;height:100%;border:0;outline:none;background:transparent;color:var(--text);font-size:16px;font-weight:600;text-align:center;font-family:var(--serif);-webkit-appearance:none}
-#q::placeholder{color:#b3c0d2;font-weight:500;letter-spacing:.06em}
+#q::placeholder{color:#b3c0d2;font-weight:500;letter-spacing:.06em;opacity:1;transition:opacity .4s ease}
+#q:focus::placeholder{opacity:.1}   /* 搜索状态下提示文字渐隐到 10% */
 #submit{flex:0 0 auto;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:15px;line-height:34px;text-align:center;opacity:0;transform:translateX(8px);pointer-events:none;transition:all .3s ease-out}
-.search_bar:focus-within #submit,.search_bar.has-text #submit{opacity:1;transform:none;pointer-events:auto}
+.search_bar.has-text #submit{opacity:1;transform:none;pointer-events:auto}
 
 /* ---------- 下拉面板 ---------- */
 #sug,#engines{position:absolute;top:calc(100% + 8px);background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 10px 28px rgba(26,95,208,.14);display:none;z-index:12;overflow:hidden}
@@ -92,7 +89,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-grad
   <form id="search_form" autocomplete="off">
     <div class="search_bar" id="bar">
       <div class="engine" id="engine">谷歌 <i>▾</i></div>
-      <input id="q" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="🔍 搜索或输入网址">
+      <input id="q" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="搜索或输入网址">
       <button id="submit" type="button" aria-label="搜索">➜</button>
       <div id="sug"></div>
       <div id="engines"></div>
@@ -115,8 +112,6 @@ var POEMS=['床前明月光，疑是地上霜','海上生明月，天涯共此�
 '潮平两岸阔，风正一帆悬','停车坐爱枫林晚，霜叶红于二月花','东风夜放花千树，更吹落，星如雨',
 '落红不是无情物，化作春泥更护花','天街小雨润如酥，草色遥看近却无','桃花潭水深千尺，不及汪伦送我情'];
 var POEM_INTERVAL=60000;
-var HIDE_ENGINE_ON_FOCUS=true;
-var KEEP_ENGINE_AFTER_SWITCH=1600; /* 切换引擎后保持显示的时长(ms)，再渐隐 */
 
 var ENGINES=[
 {name:'谷歌',tag:'google',url:'https://www.google.com/search?q='},
@@ -141,7 +136,6 @@ var BOOKMARKS=[
 var $=function(s){return document.querySelector(s)};
 var input=$('#q'),bar=$('#bar'),sugBox=$('#sug'),enginesBox=$('#engines'),engineEl=$('#engine'),
     bmBox=$('#bookmark_part'),dateEl=$('#date'),timeEl=$('#time');
-if(HIDE_ENGINE_ON_FOCUS)document.documentElement.classList.add('hide-eng');
 
 /* ---------- 顶部标题：随机古诗词 ---------- */
 function setPoem(){document.title=POEMS[Math.floor(Math.random()*POEMS.length)]}
@@ -159,7 +153,7 @@ function renderClock(){
 }
 (function loopClock(){renderClock();setTimeout(loopClock,1000-(Date.now()%1000)+5)})();
 
-/* ---------- 搜索引擎：点开列表选择 ---------- */
+/* ---------- 搜索引擎：常驻显示，随时可点开切换 ---------- */
 var idx=0;
 try{idx=parseInt(localStorage.getItem('hp_engine')||'0',10)||0}catch(e){idx=0}
 if(idx<0||idx>=ENGINES.length)idx=0;
@@ -177,15 +171,10 @@ function buildList(){
     enginesBox.appendChild(d);
   });
 }
-var keepTimer=null;
 function setEngine(i){
   idx=i;
   try{localStorage.setItem('hp_engine',String(idx))}catch(e){}
   renderEngine();closeEngines();hideSug();
-  /* 切换后先保持引擎名可见一小会儿，再渐隐，避免"不知道切没切成功" */
-  bar.classList.add('keep-eng');
-  clearTimeout(keepTimer);
-  keepTimer=setTimeout(function(){bar.classList.remove('keep-eng')},KEEP_ENGINE_AFTER_SWITCH);
   input.focus();
   var q=input.value.trim(); if(q)askSuggest(q);
 }
