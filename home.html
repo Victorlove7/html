@@ -6,39 +6,80 @@
 <meta name="theme-color" content="#f5f8fd">
 <title>主页</title>
 <style>
-:root{--blue:#1a73e8;--blue-deep:#0f4c9c;--text:#16233a;--sub:#6b7a90;--line:#e3ebf6;--card:#fff;--radius:14px}
+/* 更简洁、更粗一点的衬线字体（在线字体加载失败时自动回退系统衬线） */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;600;700;900&display=swap');
+
+:root{
+  --blue:#1a73e8;
+  --blue-soft:#5b93d8;      /* 时钟：浅一点的蓝 */
+  --text:#1d2b42;
+  --sub:#7c8aa0;
+  --line:#e3ebf6;
+  --card:#fff;
+  --radius:14px;
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong",Georgia,serif;
+}
 *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
 html,body{margin:0;padding:0;height:100%}
-body{font-family:-apple-system,"PingFang SC","Noto Sans SC",system-ui,sans-serif;color:var(--text);background:#f5f8fd;overflow:hidden}
+body{font-family:var(--serif);font-weight:600;color:var(--text);background:#f5f8fd;overflow:hidden}
 body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 50% -10%,#dbe9ff 0%,#eef5ff 38%,#f8fbff 62%,#fff 100%)}
 #content{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 11vh) 0 40px}
+
+/* ---------- 顶部时钟 ---------- */
 .clock{text-align:center;margin:0 0 30px}
-.date{font-size:15px;color:var(--sub);letter-spacing:1px}
-.time{margin-top:8px;font-size:clamp(42px,14vw,60px);font-weight:600;line-height:1.05;color:var(--blue-deep);letter-spacing:2px;font-variant-numeric:tabular-nums}
+.date{display:flex;align-items:baseline;justify-content:center;gap:12px;font-size:15px;color:var(--sub);font-weight:500}
+.date span{letter-spacing:.12em;text-indent:.12em}   /* 抵消最后一个字的字距，保持视觉居中 */
+.date i{font-style:normal;font-size:10px;opacity:.5;transform:translateY(-1px)}
+.time{margin-top:10px;font-size:clamp(42px,14vw,60px);font-weight:900;line-height:1.05;color:var(--blue-soft);letter-spacing:3px;font-variant-numeric:tabular-nums}
+
+/* ---------- 搜索栏 ---------- */
 .search_bar{position:relative;display:flex;align-items:center;width:86%;max-width:420px;height:48px;margin:0 auto;padding:0 6px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 20px rgba(26,95,208,.08);transition:width .3s ease,box-shadow .3s ease,border-color .3s ease}
 .search_bar:focus-within{width:92%;border-color:rgba(26,115,232,.55);box-shadow:0 8px 26px rgba(26,115,232,.16)}
-.engine{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:0 8px 0 12px;font-size:15px;white-space:nowrap;color:var(--blue);overflow:hidden}
+.engine{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:0 8px 0 12px;font-size:15px;font-weight:700;white-space:nowrap;color:var(--blue);overflow:hidden;
+  transition:opacity .3s ease,width .35s ease,padding .35s ease,transform .35s ease}
 .engine i{font-style:normal;font-size:11px;opacity:.65;transition:transform .2s}
 .engine.open i{transform:rotate(180deg)}
-.hide-eng .search_bar:focus-within .engine{width:0;padding:0;opacity:0;pointer-events:none}
-#q{flex:1 1 auto;min-width:0;height:100%;border:0;outline:none;background:transparent;color:var(--text);font-size:16px;text-align:center;font-family:inherit;-webkit-appearance:none}
-#q::placeholder{color:#aab8cb}
+/* 聚焦时渐隐收起引擎名，且延迟一点，切换引擎后能看清当前引擎 */
+.hide-eng .search_bar:focus-within:not(.keep-eng) .engine{width:0;padding:0;opacity:0;transform:translateX(-6px);pointer-events:none;transition-delay:.5s}
+#q{flex:1 1 auto;min-width:0;height:100%;border:0;outline:none;background:transparent;color:var(--text);font-size:16px;font-weight:600;text-align:center;font-family:var(--serif);-webkit-appearance:none}
+#q::placeholder{color:#b3c0d2;font-weight:500;letter-spacing:.06em}
 #submit{flex:0 0 auto;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:15px;line-height:34px;text-align:center;opacity:0;transform:translateX(8px);pointer-events:none;transition:all .3s ease-out}
 .search_bar:focus-within #submit,.search_bar.has-text #submit{opacity:1;transform:none;pointer-events:auto}
+
+/* ---------- 下拉面板 ---------- */
 #sug,#engines{position:absolute;top:calc(100% + 8px);background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 10px 28px rgba(26,95,208,.14);display:none;z-index:12;overflow:hidden}
 #sug{left:-1px;right:-1px;max-height:46vh;overflow-y:auto}
 #engines{left:0;min-width:164px}
 #sug.show,#engines.show{display:block}
-#sug div,#engines div{padding:12px 16px;font-size:14.5px;color:var(--text);border-bottom:1px solid #f1f5fb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sug div,#engines div{padding:12px 16px;font-size:14.5px;font-weight:500;color:var(--text);border-bottom:1px solid #f1f5fb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #engines div{font-size:15px;padding:13px 20px 13px 16px}
 #sug div:last-child,#engines div:last-child{border-bottom:0}
 #sug div:active,#engines div:active{background:#eef5ff}
-#engines div.cur{color:var(--blue);font-weight:600}
+#engines div.cur{color:var(--blue);font-weight:700}
 #engines div.cur::after{content:'  ✓'}
+
+/* ---------- 书签 ---------- */
 #bookmark_part{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 10px;width:88%;max-width:420px;margin:38px auto 0}
-#bookmark_part a{display:flex;flex-direction:column;align-items:center;gap:7px;text-decoration:none;color:#5b6b80;font-size:12px}
-#bookmark_part .ico{width:50px;height:50px;border-radius:15px;background:#fff;border:1px solid var(--line);box-shadow:0 4px 12px rgba(26,95,208,.07);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;color:var(--blue);overflow:hidden}
+#bookmark_part a{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:#54647a;font-size:12px;font-weight:600}
+#bookmark_part .ico{
+  width:50px;height:50px;background:#fff;border:1px solid var(--line);
+  box-shadow:0 4px 12px rgba(26,95,208,.07);
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;font-weight:700;color:var(--blue);overflow:hidden;
+  /* G2 连续曲率圆角（squircle），比 border-radius 更顺滑 */
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C15 0 0 15 0 50s15 50 50 50 50-15 50-50S85 0 50 0z'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C15 0 0 15 0 50s15 50 50 50 50-15 50-50S85 0 50 0z'/%3E%3C/svg%3E");
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  transition:transform .22s cubic-bezier(.34,1.4,.64,1),box-shadow .22s ease;
+}
 #bookmark_part .ico img{width:100%;height:100%;object-fit:cover}
+/* 与搜索框一致的鼠标识别动效 */
+@media (hover:hover){
+  #bookmark_part a:hover .ico{transform:translateY(-4px) scale(1.05);box-shadow:0 10px 22px rgba(26,95,208,.18)}
+  #bookmark_part a:hover{color:var(--blue)}
+  .engine:hover{opacity:.8}
+  #submit:hover{filter:brightness(1.08)}
+}
 #bookmark_part a:active .ico{transform:scale(.94);transition:transform .12s}
 </style>
 </head>
@@ -51,14 +92,15 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-grad
   <form id="search_form" autocomplete="off">
     <div class="search_bar" id="bar">
       <div class="engine" id="engine">谷歌 <i>▾</i></div>
-      <input id="q" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="">
+      <input id="q" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="🔍 搜索或输入网址">
       <button id="submit" type="button" aria-label="搜索">➜</button>
       <div id="sug"></div>
       <div id="engines"></div>
     </div>
   </form>
   <div id="bookmark_part"></div>
-</div><script>
+</div>
+<script>
 (function(){
 'use strict';
 
@@ -72,8 +114,9 @@ var POEMS=['床前明月光，疑是地上霜','海上生明月，天涯共此�
 '人生自古谁无死，留取丹心照汗青','问渠那得清如许，为有源头活水来','星垂平野阔，月涌大江流',
 '潮平两岸阔，风正一帆悬','停车坐爱枫林晚，霜叶红于二月花','东风夜放花千树，更吹落，星如雨',
 '落红不是无情物，化作春泥更护花','天街小雨润如酥，草色遥看近却无','桃花潭水深千尺，不及汪伦送我情'];
-var POEM_INTERVAL=60000;      /* 诗句多久换一次(ms)，0=只在打开时随机一次 */
-var HIDE_ENGINE_ON_FOCUS=true;/* 点搜索框后引擎名是否收起(框内变空白)，false=常驻 */
+var POEM_INTERVAL=60000;
+var HIDE_ENGINE_ON_FOCUS=true;
+var KEEP_ENGINE_AFTER_SWITCH=1600; /* 切换引擎后保持显示的时长(ms)，再渐隐 */
 
 var ENGINES=[
 {name:'谷歌',tag:'google',url:'https://www.google.com/search?q='},
@@ -92,7 +135,7 @@ var BOOKMARKS=[
 {name:'豆瓣',url:'https://m.douban.com',icon:'https://www.douban.com/favicon.ico'},
 {name:'GitHub',url:'https://github.com',icon:'https://github.com/favicon.ico'},
 {name:'淘宝',url:'https://m.taobao.com',icon:'https://www.taobao.com/favicon.ico'},
-{name:'京东',url:'https://m.jd.com',icon:'https://www.jd.com/favicon.ico'}
+{name:'京东',url:'https://m.jd.com',icon:'https://www.m.jd.com/favicon.ico'}
 ];
 
 var $=function(s){return document.querySelector(s)};
@@ -110,7 +153,8 @@ var WEEK=['日','一','二','三','四','五','六'];
 function p2(n){return n<10?'0'+n:''+n}
 function renderClock(){
   var d=new Date(Date.now()+8*3600*1000);
-  dateEl.textContent=d.getUTCFullYear()+'年'+(d.getUTCMonth()+1)+'月'+d.getUTCDate()+'日  星期'+WEEK[d.getUTCDay()];
+  dateEl.innerHTML='<span>'+d.getUTCFullYear()+'年'+(d.getUTCMonth()+1)+'月'+d.getUTCDate()+'日</span>'+
+                   '<i>●</i><span>星期'+WEEK[d.getUTCDay()]+'</span>';
   timeEl.textContent=p2(d.getUTCHours())+':'+p2(d.getUTCMinutes())+':'+p2(d.getUTCSeconds());
 }
 (function loopClock(){renderClock();setTimeout(loopClock,1000-(Date.now()%1000)+5)})();
@@ -133,10 +177,15 @@ function buildList(){
     enginesBox.appendChild(d);
   });
 }
+var keepTimer=null;
 function setEngine(i){
   idx=i;
   try{localStorage.setItem('hp_engine',String(idx))}catch(e){}
   renderEngine();closeEngines();hideSug();
+  /* 切换后先保持引擎名可见一小会儿，再渐隐，避免"不知道切没切成功" */
+  bar.classList.add('keep-eng');
+  clearTimeout(keepTimer);
+  keepTimer=setTimeout(function(){bar.classList.remove('keep-eng')},KEEP_ENGINE_AFTER_SWITCH);
   input.focus();
   var q=input.value.trim(); if(q)askSuggest(q);
 }
@@ -146,7 +195,9 @@ engineEl.addEventListener('click',function(e){
   e.stopPropagation();
   if(enginesBox.classList.contains('show'))closeEngines(); else openEngines();
 });
-renderEngine();/* ---------- 打开网址 / 搜索 ---------- */
+renderEngine();
+
+/* ---------- 打开网址 / 搜索 ---------- */
 function looksLikeUrl(s){
   if(/\s/.test(s))return false;
   return /^(https?:\/\/|ftp:\/\/)/i.test(s)||/^[\w-]+(\.[\w-]+)+(\/|$|:\d+)/i.test(s);
