@@ -6,389 +6,238 @@
 <meta name="theme-color" content="#f5f8fd">
 <title>主页</title>
 <style>
-:root{
-  --blue:      #1a73e8;      /* 主蓝 */
-  --blue-deep: #0f4c9c;      /* 深蓝（时间数字） */
-  --text:      #16233a;
-  --sub:       #6b7a90;
-  --line:      #e3ebf6;
-  --card:      #ffffff;
-  --radius:    14px;
-}
-*{ -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-html,body{ margin:0; padding:0; height:100%; }
-body{
-  font-family:-apple-system,"PingFang SC","Noto Sans SC",system-ui,sans-serif;
-  color:var(--text);
-  background:#f5f8fd;
-  overflow:hidden;
-}
-/* 蓝白渐变底 */
-body::before{
-  content:''; position:fixed; inset:0; z-index:-1;
-  background: radial-gradient(circle at 50% -10%,
-              #dbe9ff 0%, #eef5ff 38%, #f8fbff 62%, #ffffff 100%);
-}
-#content{
-  position:fixed; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
-  padding: calc(env(safe-area-inset-top) + 11vh) 0 40px;
-}
-
-/* ---------- 日期 + 时间 ---------- */
-.clock{ text-align:center; margin:0 0 30px; }
-.date{
-  font-size:15px; color:var(--sub); letter-spacing:1px;
-}
-.time{
-  margin-top:8px;
-  font-size: clamp(42px, 14vw, 60px);
-  font-weight:600; line-height:1.05;
-  color:var(--blue-deep);
-  letter-spacing:2px;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings:"tnum";
-}
-
-/* ---------- 搜索框 ---------- */
-.search_bar{
-  position:relative; display:flex; align-items:center;
-  width:86%; max-width:420px; height:48px;
-  margin:0 auto; padding:0 6px;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:0 6px 20px rgba(26,95,208,.08);
-  transition: width .3s ease, box-shadow .3s ease, border-color .3s ease;
-}
-.search_bar:focus-within{
-  width:92%;
-  border-color:rgba(26,115,232,.55);
-  box-shadow:0 8px 26px rgba(26,115,232,.16);
-}
-.engine{
-  flex:0 0 auto; display:flex; align-items:center; gap:4px;
-  padding:0 8px 0 12px; font-size:15px; white-space:nowrap;
-  color:var(--blue);
-}
-.engine i{ font-style:normal; font-size:11px; opacity:.65; }
-
-#q{
-  flex:1 1 auto; min-width:0; height:100%;
-  border:0; outline:none; background:transparent;
-  color:var(--text); font-size:16px; text-align:center; font-family:inherit;
-  -webkit-appearance:none;
-}
-#q::placeholder{ color:#aab8cb; }
-
-#submit{
-  flex:0 0 auto; width:34px; height:34px; padding:0;
-  border:0; border-radius:50%;
-  background:var(--blue); color:#fff;
-  font-size:15px; line-height:34px; text-align:center;
-  opacity:0; transform:translateX(8px); pointer-events:none;
-  transition: all .3s ease-out;
-}
-.search_bar:focus-within #submit,
-.search_bar.has-text #submit{ opacity:1; transform:none; pointer-events:auto; }
-
-/* ---------- 联想词 ---------- */
-#sug{
-  position:absolute; left:-1px; right:-1px; top:calc(100% + 8px);
-  max-height:46vh; overflow-y:auto;
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:0 10px 28px rgba(26,95,208,.12);
-  display:none; z-index:10;
-}
-#sug.show{ display:block; }
-#sug div{
-  padding:12px 16px; font-size:14.5px; color:var(--text);
-  border-bottom:1px solid #f1f5fb;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-#sug div:last-child{ border-bottom:0; }
-#sug div:active{ background:#eef5ff; }
-
-/* ---------- 书签 ---------- */
-#bookmark_part{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:18px 10px;
-  width:88%; max-width:420px; margin:38px auto 0;
-}
-#bookmark_part a{
-  display:flex; flex-direction:column; align-items:center; gap:7px;
-  text-decoration:none; color:#5b6b80; font-size:12px;
-}
-#bookmark_part .ico{
-  width:50px; height:50px; border-radius:15px;
-  background:#fff; border:1px solid var(--line);
-  box-shadow:0 4px 12px rgba(26,95,208,.07);
-  display:flex; align-items:center; justify-content:center;
-  font-size:19px; font-weight:600; color:var(--blue); overflow:hidden;
-}
-#bookmark_part .ico img{ width:100%; height:100%; object-fit:cover; }
-#bookmark_part a:active .ico{ transform:scale(.94); transition:transform .12s; }
+:root{--blue:#1a73e8;--blue-deep:#0f4c9c;--text:#16233a;--sub:#6b7a90;--line:#e3ebf6;--card:#fff;--radius:14px}
+*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,"PingFang SC","Noto Sans SC",system-ui,sans-serif;color:var(--text);background:#f5f8fd;overflow:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 50% -10%,#dbe9ff 0%,#eef5ff 38%,#f8fbff 62%,#fff 100%)}
+#content{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 11vh) 0 40px}
+.clock{text-align:center;margin:0 0 30px}
+.date{font-size:15px;color:var(--sub);letter-spacing:1px}
+.time{margin-top:8px;font-size:clamp(42px,14vw,60px);font-weight:600;line-height:1.05;color:var(--blue-deep);letter-spacing:2px;font-variant-numeric:tabular-nums}
+.search_bar{position:relative;display:flex;align-items:center;width:86%;max-width:420px;height:48px;margin:0 auto;padding:0 6px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 6px 20px rgba(26,95,208,.08);transition:width .3s ease,box-shadow .3s ease,border-color .3s ease}
+.search_bar:focus-within{width:92%;border-color:rgba(26,115,232,.55);box-shadow:0 8px 26px rgba(26,115,232,.16)}
+.engine{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:0 8px 0 12px;font-size:15px;white-space:nowrap;color:var(--blue);overflow:hidden}
+.engine i{font-style:normal;font-size:11px;opacity:.65;transition:transform .2s}
+.engine.open i{transform:rotate(180deg)}
+.hide-eng .search_bar:focus-within .engine{width:0;padding:0;opacity:0;pointer-events:none}
+#q{flex:1 1 auto;min-width:0;height:100%;border:0;outline:none;background:transparent;color:var(--text);font-size:16px;text-align:center;font-family:inherit;-webkit-appearance:none}
+#q::placeholder{color:#aab8cb}
+#submit{flex:0 0 auto;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:var(--blue);color:#fff;font-size:15px;line-height:34px;text-align:center;opacity:0;transform:translateX(8px);pointer-events:none;transition:all .3s ease-out}
+.search_bar:focus-within #submit,.search_bar.has-text #submit{opacity:1;transform:none;pointer-events:auto}
+#sug,#engines{position:absolute;top:calc(100% + 8px);background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 10px 28px rgba(26,95,208,.14);display:none;z-index:12;overflow:hidden}
+#sug{left:-1px;right:-1px;max-height:46vh;overflow-y:auto}
+#engines{left:0;min-width:164px}
+#sug.show,#engines.show{display:block}
+#sug div,#engines div{padding:12px 16px;font-size:14.5px;color:var(--text);border-bottom:1px solid #f1f5fb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#engines div{font-size:15px;padding:13px 20px 13px 16px}
+#sug div:last-child,#engines div:last-child{border-bottom:0}
+#sug div:active,#engines div:active{background:#eef5ff}
+#engines div.cur{color:var(--blue);font-weight:600}
+#engines div.cur::after{content:'  ✓'}
+#bookmark_part{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 10px;width:88%;max-width:420px;margin:38px auto 0}
+#bookmark_part a{display:flex;flex-direction:column;align-items:center;gap:7px;text-decoration:none;color:#5b6b80;font-size:12px}
+#bookmark_part .ico{width:50px;height:50px;border-radius:15px;background:#fff;border:1px solid var(--line);box-shadow:0 4px 12px rgba(26,95,208,.07);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;color:var(--blue);overflow:hidden}
+#bookmark_part .ico img{width:100%;height:100%;object-fit:cover}
+#bookmark_part a:active .ico{transform:scale(.94);transition:transform .12s}
 </style>
 </head>
 <body>
-
 <div id="content">
   <div class="clock">
     <div class="date" id="date">——</div>
     <div class="time" id="time">--:--:--</div>
   </div>
-
   <form id="search_form" autocomplete="off">
     <div class="search_bar" id="bar">
       <div class="engine" id="engine">谷歌 <i>▾</i></div>
-      <input id="q" type="text" enterkeyhint="search" autocomplete="off"
-             autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="">
+      <input id="q" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="">
       <button id="submit" type="button" aria-label="搜索">➜</button>
       <div id="sug"></div>
+      <div id="engines"></div>
     </div>
   </form>
-
   <div id="bookmark_part"></div>
-</div>
-
-<script>
+</div><script>
 (function(){
-  'use strict';
+'use strict';
 
-  /* ================= 配置区 ================= */
+var POEMS=['床前明月光，疑是地上霜','海上生明月，天涯共此时','明月松间照，清泉石上流',
+'大漠孤烟直，长河落日圆','会当凌绝顶，一览众山小','长风破浪会有时，直挂云帆济沧海',
+'采菊东篱下，悠然见南山','山重水复疑无路，柳暗花明又一村','天生我材必有用，千金散尽还复来',
+'千山鸟飞绝，万径人踪灭','落霞与孤鹜齐飞，秋水共长天一色','春眠不觉晓，处处闻啼鸟',
+'竹外桃花三两枝，春江水暖鸭先知','疏影横斜水清浅，暗香浮动月黄昏','忽如一夜春风来，千树万树梨花开',
+'谁言寸草心，报得三春晖','无边落木萧萧下，不尽长江滚滚来','白日依山尽，黄河入海流',
+'曾经沧海难为水，除却巫山不是云','独在异乡为异客，每逢佳节倍思亲','但愿人长久，千里共婵娟',
+'人生自古谁无死，留取丹心照汗青','问渠那得清如许，为有源头活水来','星垂平野阔，月涌大江流',
+'潮平两岸阔，风正一帆悬','停车坐爱枫林晚，霜叶红于二月花','东风夜放花千树，更吹落，星如雨',
+'落红不是无情物，化作春泥更护花','天街小雨润如酥，草色遥看近却无','桃花潭水深千尺，不及汪伦送我情'];
+var POEM_INTERVAL=60000;      /* 诗句多久换一次(ms)，0=只在打开时随机一次 */
+var HIDE_ENGINE_ON_FOCUS=true;/* 点搜索框后引擎名是否收起(框内变空白)，false=常驻 */
 
-  // ① 顶部标题的随机古诗词（想加就往下加）
-  var POEMS = [
-    '床前明月光，疑是地上霜',
-    '海上生明月，天涯共此时',
-    '明月松间照，清泉石上流',
-    '大漠孤烟直，长河落日圆',
-    '会当凌绝顶，一览众山小',
-    '长风破浪会有时，直挂云帆济沧海',
-    '采菊东篱下，悠然见南山',
-    '山重水复疑无路，柳暗花明又一村',
-    '天生我材必有用，千金散尽还复来',
-    '千山鸟飞绝，万径人踪灭',
-    '落霞与孤鹜齐飞，秋水共长天一色',
-    '春眠不觉晓，处处闻啼鸟',
-    '竹外桃花三两枝，春江水暖鸭先知',
-    '疏影横斜水清浅，暗香浮动月黄昏',
-    '忽如一夜春风来，千树万树梨花开',
-    '谁言寸草心，报得三春晖',
-    '无边落木萧萧下，不尽长江滚滚来',
-    '白日依山尽，黄河入海流',
-    '曾经沧海难为水，除却巫山不是云',
-    '天街小雨润如酥，草色遥看近却无',
-    '独在异乡为异客，每逢佳节倍思亲',
-    '桃花潭水深千尺，不及汪伦送我情',
-    '但愿人长久，千里共婵娟',
-    '衣带渐宽终不悔，为伊消得人憔悴',
-    '人生自古谁无死，留取丹心照汗青',
-    '问渠那得清如许，为有源头活水来',
-    '纸上得来终觉浅，绝知此事要躬行',
-    '星垂平野阔，月涌大江流',
-    '潮平两岸阔，风正一帆悬',
-    '停车坐爱枫林晚，霜叶红于二月花',
-    '东风夜放花千树，更吹落，星如雨',
-    '落红不是无情物，化作春泥更护花'
-  ];
-  var POEM_INTERVAL = 60000;   // 多久换一句(ms)，填 0 = 只在打开时随机一次
+var ENGINES=[
+{name:'谷歌',tag:'google',url:'https://www.google.com/search?q='},
+{name:'必应',tag:'bing',url:'https://www.bing.com/search?q='},
+{name:'百度',tag:'baidu',url:'https://www.baidu.com/s?wd='},
+{name:'搜狗',tag:'sogou',url:'https://www.sogou.com/web?query='},
+{name:'DuckDuckGo',tag:'ddg',url:'https://duckduckgo.com/?q='},
+{name:'Yandex',tag:'yandex',url:'https://yandex.com/search/?text='}
+];
 
-  // ② 搜索引擎：点搜索框左边的名字可循环切换
-  var ENGINES = [
-    { name:'谷歌', tag:'google', url:'https://www.google.com/search?q=' },
-    { name:'必应', tag:'bing',   url:'https://www.bing.com/search?q='  },
-    { name:'百度', tag:'baidu',  url:'https://www.baidu.com/s?wd='     },
-    { name:'搜狗', tag:'sogou',  url:'https://www.sogou.com/web?query='}
-  ];
+var BOOKMARKS=[
+{name:'B站',url:'https://m.bilibili.com',icon:'https://www.bilibili.com/favicon.ico'},
+{name:'知乎',url:'https://www.zhihu.com',icon:'https://www.zhihu.com/favicon.ico'},
+{name:'微博',url:'https://m.weibo.cn',icon:'https://weibo.com/favicon.ico'},
+{name:'贴吧',url:'https://tieba.baidu.com',icon:'https://tieba.baidu.com/favicon.ico'},
+{name:'豆瓣',url:'https://m.douban.com',icon:'https://www.douban.com/favicon.ico'},
+{name:'GitHub',url:'https://github.com',icon:'https://github.com/favicon.ico'},
+{name:'淘宝',url:'https://m.taobao.com',icon:'https://www.taobao.com/favicon.ico'},
+{name:'京东',url:'https://m.jd.com',icon:'https://www.jd.com/favicon.ico'}
+];
 
-  // ③ 书签：icon 留空则用名字首字
-  var BOOKMARKS = [
-    { name:'B站',    url:'https://m.bilibili.com', icon:'https://www.bilibili.com/favicon.ico' },
-    { name:'知乎',   url:'https://www.zhihu.com',  icon:'https://www.zhihu.com/favicon.ico'   },
-    { name:'微博',   url:'https://m.weibo.cn',     icon:'https://weibo.com/favicon.ico'       },
-    { name:'贴吧',   url:'https://tieba.baidu.com',icon:'https://tieba.baidu.com/favicon.ico' },
-    { name:'豆瓣',   url:'https://m.douban.com',   icon:'https://www.douban.com/favicon.ico'  },
-    { name:'GitHub', url:'https://github.com',     icon:'https://github.com/favicon.ico'      },
-    { name:'淘宝',   url:'https://m.taobao.com',   icon:'https://www.taobao.com/favicon.ico'  },
-    { name:'京东',   url:'https://m.jd.com',       icon:'https://www.jd.com/favicon.ico'      }
-  ];
+var $=function(s){return document.querySelector(s)};
+var input=$('#q'),bar=$('#bar'),sugBox=$('#sug'),enginesBox=$('#engines'),engineEl=$('#engine'),
+    bmBox=$('#bookmark_part'),dateEl=$('#date'),timeEl=$('#time');
+if(HIDE_ENGINE_ON_FOCUS)document.documentElement.classList.add('hide-eng');
 
-  /* ========================================== */
+/* ---------- 顶部标题：随机古诗词 ---------- */
+function setPoem(){document.title=POEMS[Math.floor(Math.random()*POEMS.length)]}
+setPoem();
+if(POEM_INTERVAL>0)setInterval(setPoem,POEM_INTERVAL);
 
-  var $ = function(s){ return document.querySelector(s); };
-  var input = $('#q'), bar = $('#bar'), sugBox = $('#sug'),
-      engineEl = $('#engine'), bmBox = $('#bookmark_part'),
-      dateEl = $('#date'), timeEl = $('#time');
+/* ---------- 日期 + 北京时间(UTC+8, 精确到秒) ---------- */
+var WEEK=['日','一','二','三','四','五','六'];
+function p2(n){return n<10?'0'+n:''+n}
+function renderClock(){
+  var d=new Date(Date.now()+8*3600*1000);
+  dateEl.textContent=d.getUTCFullYear()+'年'+(d.getUTCMonth()+1)+'月'+d.getUTCDate()+'日  星期'+WEEK[d.getUTCDay()];
+  timeEl.textContent=p2(d.getUTCHours())+':'+p2(d.getUTCMinutes())+':'+p2(d.getUTCSeconds());
+}
+(function loopClock(){renderClock();setTimeout(loopClock,1000-(Date.now()%1000)+5)})();
 
-  /* ---------- ① 顶部标题：随机古诗词 ---------- */
-  function setPoem(){
-    document.title = POEMS[Math.floor(Math.random() * POEMS.length)];
-  }
-  setPoem();
-  if (POEM_INTERVAL > 0) setInterval(setPoem, POEM_INTERVAL);
-
-  /* ---------- ② 日期 + 北京时间（UTC+8，精确到秒） ---------- */
-  var WEEK = ['日','一','二','三','四','五','六'];
-  function p2(n){ return n < 10 ? '0' + n : '' + n; }
-
-  function renderClock(){
-    var d = new Date(Date.now() + 8 * 3600 * 1000);   // 强制按东八区算，不受手机时区影响
-    dateEl.textContent = d.getUTCFullYear() + '年' + (d.getUTCMonth() + 1) + '月' +
-                         d.getUTCDate() + '日  星期' + WEEK[d.getUTCDay()];
-    timeEl.textContent = p2(d.getUTCHours()) + ':' + p2(d.getUTCMinutes()) + ':' + p2(d.getUTCSeconds());
-  }
-  function loopClock(){
-    renderClock();
-    setTimeout(loopClock, 1000 - (Date.now() % 1000) + 5);   // 对齐到整秒，不累积误差
-  }
-  loopClock();
-
-  /* ---------- 搜索引擎切换 ---------- */
-  var idx = 0;
-  try { idx = parseInt(localStorage.getItem('hp_engine') || '0', 10) || 0; } catch(e){ idx = 0; }
-  if (idx < 0 || idx >= ENGINES.length) idx = 0;
-  function cur(){ return ENGINES[idx]; }
-  function renderEngine(){ engineEl.innerHTML = cur().name + ' <i>▾</i>'; }
-  renderEngine();
-
-  engineEl.addEventListener('click', function(){
-    idx = (idx + 1) % ENGINES.length;
-    try { localStorage.setItem('hp_engine', String(idx)); } catch(e){}
-    renderEngine();
-    hideSug();
-    input.focus();
-    var q = input.value.trim();
-    if (q) askSuggest(q);
+/* ---------- 搜索引擎：点开列表选择 ---------- */
+var idx=0;
+try{idx=parseInt(localStorage.getItem('hp_engine')||'0',10)||0}catch(e){idx=0}
+if(idx<0||idx>=ENGINES.length)idx=0;
+function cur(){return ENGINES[idx]}
+function renderEngine(){engineEl.innerHTML=cur().name+' <i>▾</i>'}
+function buildList(){
+  enginesBox.innerHTML='';
+  ENGINES.forEach(function(e,i){
+    var d=document.createElement('div');
+    d.textContent=e.name;
+    if(i===idx)d.className='cur';
+    var pick=function(ev){if(ev&&ev.preventDefault)ev.preventDefault();setEngine(i)};
+    d.addEventListener('touchstart',pick,{passive:false});
+    d.addEventListener('click',function(){pick()});
+    enginesBox.appendChild(d);
   });
+}
+function setEngine(i){
+  idx=i;
+  try{localStorage.setItem('hp_engine',String(idx))}catch(e){}
+  renderEngine();closeEngines();hideSug();
+  input.focus();
+  var q=input.value.trim(); if(q)askSuggest(q);
+}
+function openEngines(){buildList();enginesBox.classList.add('show');engineEl.classList.add('open');hideSug()}
+function closeEngines(){enginesBox.classList.remove('show');engineEl.classList.remove('open')}
+engineEl.addEventListener('click',function(e){
+  e.stopPropagation();
+  if(enginesBox.classList.contains('show'))closeEngines(); else openEngines();
+});
+renderEngine();/* ---------- 打开网址 / 搜索 ---------- */
+function looksLikeUrl(s){
+  if(/\s/.test(s))return false;
+  return /^(https?:\/\/|ftp:\/\/)/i.test(s)||/^[\w-]+(\.[\w-]+)+(\/|$|:\d+)/i.test(s);
+}
+function go(k){
+  var q=String(k==null?input.value:k).replace(/^\s+|\s+$/g,'');
+  if(!q){input.focus();return}
+  if(looksLikeUrl(q)){location.href=/^[a-z]+:\/\//i.test(q)?q:'https://'+q}
+  else{location.href=cur().url+encodeURIComponent(q)}
+}
+$('#submit').addEventListener('click',function(){go()});
+$('#search_form').addEventListener('submit',function(e){e.preventDefault();go()});
+input.addEventListener('keydown',function(e){
+  if(e.key==='Enter'||e.keyCode===13){e.preventDefault();go()}
+});
 
-  /* ---------- 打开网址 / 搜索 ---------- */
-  function looksLikeUrl(s){
-    if (/\s/.test(s)) return false;
-    return /^(https?:\/\/|ftp:\/\/)/i.test(s) || /^[\w-]+(\.[\w-]+)+(\/|$|:\d+)/i.test(s);
+/* ---------- 联想词 ---------- */
+var sugTimer=null,sugReq=0;
+function hideSug(){sugBox.classList.remove('show');sugBox.innerHTML=''}
+function renderSug(list){
+  sugBox.innerHTML='';
+  if(!list||!list.length){hideSug();return}
+  list.slice(0,10).forEach(function(t){
+    var row=document.createElement('div');
+    row.textContent=t;
+    var pick=function(e){if(e&&e.preventDefault)e.preventDefault();input.value=t;hideSug();go(t)};
+    row.addEventListener('touchstart',pick,{passive:false});
+    row.addEventListener('click',function(){pick()});
+    sugBox.appendChild(row);
+  });
+  sugBox.classList.add('show');
+}
+function askSuggest(key){
+  var tag=cur().tag;
+  if(tag!=='baidu'&&tag!=='bing'&&tag!=='google'){hideSug();return}
+  var req=++sugReq,cbName='__hp_sug_'+req;
+  var script=document.createElement('script'),done=false;
+  function finish(list){
+    if(done)return; done=true;
+    try{script.remove()}catch(e){}
+    try{delete window[cbName]}catch(e){window[cbName]=undefined}
+    if(req!==sugReq)return;
+    renderSug(list);
   }
-  function go(k){
-    var q = String(k == null ? input.value : k).replace(/^\s+|\s+$/g, '');
-    if (!q) { input.focus(); return; }
-    if (looksLikeUrl(q)) {
-      location.href = /^[a-z]+:\/\//i.test(q) ? q : 'https://' + q;
-    } else {
-      location.href = cur().url + encodeURIComponent(q);
-    }
+  var url;
+  if(tag==='baidu'){
+    window[cbName]=function(d){var l=[];try{l=(d&&d.g)?d.g.map(function(x){return x.q}):[]}catch(e){}finish(l)};
+    url='https://www.baidu.com/sugrec?prod=pc&wd='+encodeURIComponent(key)+'&cb='+cbName;
+  }else if(tag==='bing'){
+    window[cbName]=function(d){var l=[];try{l=(d&&d[1])?d[1]:[]}catch(e){}finish(l)};
+    url='https://api.bing.com/osjson.aspx?JsonType=callback&JsonCallback='+cbName+'&query='+encodeURIComponent(key);
+  }else{
+    window.google=window.google||{}; window.google.ac=window.google.ac||{};
+    window.google.ac.h=function(r){var l=[];try{l=(r&&r[1])?r[1].map(function(x){return x[0]}):[]}catch(e){}finish(l)};
+    url='https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&q='+encodeURIComponent(key);
   }
-  $('#submit').addEventListener('click', function(){ go(); });
-  $('#search_form').addEventListener('submit', function(e){ e.preventDefault(); go(); });
-  input.addEventListener('keydown', function(e){
-    if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); go(); }
-  });
+  script.src=url;
+  script.onerror=function(){finish([])};
+  document.body.appendChild(script);
+  setTimeout(function(){finish([])},3500);
+}
+input.addEventListener('input',function(){
+  var q=input.value.trim();
+  bar.classList.toggle('has-text',!!q);
+  clearTimeout(sugTimer);
+  if(!q){hideSug();return}
+  sugTimer=setTimeout(function(){askSuggest(q)},180);
+});
+input.addEventListener('focus',function(){
+  closeEngines();
+  var q=input.value.trim(); if(q)askSuggest(q);
+});
+input.addEventListener('blur',function(){setTimeout(hideSug,200)});
+document.addEventListener('click',function(e){
+  if(e.target!==input&&!sugBox.contains(e.target)&&!engineEl.contains(e.target))hideSug();
+  if(!enginesBox.contains(e.target)&&!engineEl.contains(e.target))closeEngines();
+});
 
-  /* ---------- 联想词 ---------- */
-  var sugTimer = null, sugReq = 0;
-  function hideSug(){ sugBox.classList.remove('show'); sugBox.innerHTML = ''; }
-
-  function renderSug(list){
-    sugBox.innerHTML = '';
-    if (!list || !list.length) { hideSug(); return; }
-    list.slice(0, 10).forEach(function(t){
-      var row = document.createElement('div');
-      row.textContent = t;
-      var pick = function(e){
-        if (e && e.preventDefault) e.preventDefault();
-        input.value = t; hideSug(); go(t);
-      };
-      row.addEventListener('touchstart', pick, { passive:false });
-      row.addEventListener('click', function(){ pick(); });
-      sugBox.appendChild(row);
-    });
-    sugBox.classList.add('show');
-  }
-
-  function askSuggest(key){
-    var tag = cur().tag;
-    if (tag !== 'baidu' && tag !== 'bing' && tag !== 'google') { hideSug(); return; }
-
-    var req = ++sugReq;
-    var cbName = '__hp_sug_' + req;
-    var script = document.createElement('script');
-    var done = false;
-
-    function finish(list){
-      if (done) return; done = true;
-      try { script.remove(); } catch(e){}
-      try { delete window[cbName]; } catch(e){ window[cbName] = undefined; }
-      if (req !== sugReq) return;
-      renderSug(list);
-    }
-
-    var url;
-    if (tag === 'baidu') {
-      window[cbName] = function(data){
-        var list = [];
-        try { list = (data && data.g) ? data.g.map(function(x){ return x.q; }) : []; } catch(e){}
-        finish(list);
-      };
-      url = 'https://www.baidu.com/sugrec?prod=pc&wd=' + encodeURIComponent(key) + '&cb=' + cbName;
-    } else if (tag === 'bing') {
-      window[cbName] = function(data){
-        var list = [];
-        try { list = (data && data[1]) ? data[1] : []; } catch(e){}
-        finish(list);
-      };
-      url = 'https://api.bing.com/osjson.aspx?JsonType=callback&JsonCallback=' + cbName +
-            '&query=' + encodeURIComponent(key);
-    } else {
-      window.google = window.google || {};
-      window.google.ac = window.google.ac || {};
-      window.google.ac.h = function(res){
-        var list = [];
-        try { list = (res && res[1]) ? res[1].map(function(x){ return x[0]; }) : []; } catch(e){}
-        finish(list);
-      };
-      url = 'https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&q=' +
-            encodeURIComponent(key);
-    }
-
-    script.src = url;
-    script.onerror = function(){ finish([]); };
-    document.body.appendChild(script);
-    setTimeout(function(){ finish([]); }, 3500);
-  }
-
-  input.addEventListener('input', function(){
-    var q = input.value.trim();
-    bar.classList.toggle('has-text', !!q);
-    clearTimeout(sugTimer);
-    if (!q) { hideSug(); return; }
-    sugTimer = setTimeout(function(){ askSuggest(q); }, 180);
-  });
-  input.addEventListener('focus', function(){
-    var q = input.value.trim();
-    if (q) askSuggest(q);
-  });
-  input.addEventListener('blur', function(){ setTimeout(hideSug, 200); });
-  document.addEventListener('click', function(e){
-    if (e.target !== input && !sugBox.contains(e.target) && !engineEl.contains(e.target)) hideSug();
-  });
-
-  /* ---------- 书签 ---------- */
-  BOOKMARKS.forEach(function(b){
-    var a = document.createElement('a');
-    a.href = b.url; a.rel = 'noopener';
-    var ico = document.createElement('div');
-    ico.className = 'ico';
-    if (b.icon) {
-      var img = new Image();
-      img.src = b.icon; img.alt = '';
-      img.onerror = function(){ try{ img.remove(); }catch(e){} ico.textContent = b.name.slice(0,1); };
-      ico.appendChild(img);
-    } else {
-      ico.textContent = b.name.slice(0,1);
-    }
-    var txt = document.createElement('span');
-    txt.textContent = b.name;
-    a.appendChild(ico); a.appendChild(txt);
-    bmBox.appendChild(a);
-  });
+/* ---------- 书签 ---------- */
+BOOKMARKS.forEach(function(b){
+  var a=document.createElement('a');
+  a.href=b.url; a.rel='noopener';
+  var ico=document.createElement('div'); ico.className='ico';
+  if(b.icon){
+    var img=new Image(); img.src=b.icon; img.alt='';
+    img.onerror=function(){try{img.remove()}catch(e){} ico.textContent=b.name.slice(0,1)};
+    ico.appendChild(img);
+  }else{ico.textContent=b.name.slice(0,1)}
+  var txt=document.createElement('span'); txt.textContent=b.name;
+  a.appendChild(ico); a.appendChild(txt); bmBox.appendChild(a);
+});
 
 })();
 </script>
